@@ -19,6 +19,10 @@ public class CircleBarRenderer extends Renderer {
 	private Paint mPaint;
 	private boolean mCycleColor;
 	
+	public CircleBarRenderer(Paint paint, int divisions) {
+		this(paint, divisions, false);
+	}
+	
 	public CircleBarRenderer(Paint paint, int divisions, boolean cycleColor) {
 		super();
 		this.mPaint = paint;
@@ -40,7 +44,7 @@ public class CircleBarRenderer extends Renderer {
 			
 			float[] cartPoint = {
 					(float) (i * mDivisions) / (data.bytes.length - 1),
-					rect.height() / 2 + abValue
+					rect.height() / 2 - abValue / 4
 			};
 			
 			float[] polarPoint = toPolar(cartPoint, rect);
@@ -79,7 +83,9 @@ public class CircleBarRenderer extends Renderer {
 		double cX = rect.width() / 2;
 		double cY = rect.height() / 2;
 		double angle = (cartesian[0]) * 2 * Math.PI;
-		double radius = ((rect.width() / 2) * (1 - aggressive) + aggressive * cartesian[1] / 2)
+//		double radius = ((rect.width() / 2) * (1 - aggressive) + aggressive * cartesian[1] / 2)
+//				* ((1 - modulationStrength) + modulationStrength * (1 + Math.sin(modulation)) / 2);
+		double radius = ((rect.width() * 3 / 5) * (1 - aggressive) + aggressive * cartesian[1] / 2)
 				* ((1 - modulationStrength) + modulationStrength * (1 + Math.sin(modulation)) / 2);
 		float[] out = {
 				(float) (cX + radius * Math.sin(angle + angleModulation)), 

@@ -5,10 +5,9 @@ package com.endselect.hzmusic.view;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import com.endselect.hzmusic.render.FFTData;
 import com.endselect.hzmusic.render.Renderer;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -72,6 +71,7 @@ public class VisualizerView extends View {
 	 * @Description ¹ØÁªÒôÆµ²¥·ÅÆ÷
 	 * @param player
 	 */
+	@SuppressLint("NewApi")
 	public void link(MediaPlayer player) {
 		if(player == null) {
 			return;
@@ -102,6 +102,7 @@ public class VisualizerView extends View {
 			@Override
 			public void onCompletion(MediaPlayer mp) {
 				mVisualizer.setEnabled(false);
+				clearRenderers();
 			}
 		});
 	}

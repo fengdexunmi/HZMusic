@@ -11,6 +11,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -99,8 +101,6 @@ public class HZMusicActivity extends ActionBarActivity {
 				}
 			}
 		});
-		
-		
 		pauseView.setOnClickListener(new OnClickListener() {
 			
 			@Override
