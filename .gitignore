@@ -1,0 +1,16 @@
+project.properties
+.project
+build.xml
+*.cfg
+proguard.cfg
+proguard-project.txt
+bin/
+.settings
+.classpath
+proguard/
+srcs
+local.properties
+gen
+
+
+

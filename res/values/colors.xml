@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="orange">#e36f0d</color>
+    <color name="background_tab_pressed">#6633B5E5</color>
+    <color name="bg_top_bar">#00CC66</color>
+    <color name="top_bar_switch">#00994C</color>
+    <color name="white">#ffffffff</color>
+    <color name="light_gray">#D3D3D3</color>
+    <color name="draker_gray">#929191</color>
+    <color name="green">#0F9D58</color>
+    <color name="green_light">#c3e6d5</color>
+</resources>
