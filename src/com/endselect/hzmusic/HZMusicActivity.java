@@ -7,6 +7,10 @@ import android.app.WallpaperManager;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.PorterDuffXfermode;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -20,9 +24,11 @@ import com.endselect.hzmusic.R;
 import com.endselect.hzmusic.common.Constant;
 import com.endselect.hzmusic.common.Player;
 import com.endselect.hzmusic.model.SongInfo;
+import com.endselect.hzmusic.render.CircleBarRenderer;
 import com.endselect.hzmusic.server.Server;
 import com.endselect.hzmusic.view.CircleImageView;
 import com.endselect.hzmusic.view.RoundProgressView;
+import com.endselect.hzmusic.view.VisualizerView;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -36,6 +42,7 @@ public class HZMusicActivity extends ActionBarActivity {
 	private Context context;
 	private CircleImageView coverView; //圆形封面视图
 	private RoundProgressView progressView; //圆形进度
+	private VisualizerView visualizerView; //音频可视化
 	private ImageView pauseView; //暂停
 	private TextView tvSongName; //歌曲名
 	private TextView tvSinger; //歌手名
@@ -61,6 +68,7 @@ public class HZMusicActivity extends ActionBarActivity {
 	private void initView() {
 		coverView = (CircleImageView) findViewById(R.id.civ_music_cover);
 		progressView = (RoundProgressView) findViewById(R.id.rgp_music_progress);
+		visualizerView = (VisualizerView) findViewById(R.id.visual_view);
 		pauseView =(ImageView) findViewById(R.id.iv_music_pause);
 		tvSongName = (TextView) findViewById(R.id.tv_song_name);
 		tvSinger = (TextView) findViewById(R.id.tv_singer);
@@ -135,9 +143,72 @@ public class HZMusicActivity extends ActionBarActivity {
 				player = new Player(musicUrl, progressView);
 				player.play();
 				Picasso.with(context).load(songInfo.getPicture()).into(coverView);
+				visualizerView.link(player.mediaPlayer);
+				addCircleBarRenderer();
 			}
 		}
 		
+	}
+	
+	/**
+	 * 
+	 * @author frankfang
+	 * @version 2015年4月21日 下午6:02:59
+	 * @Description 开启渲染器
+	 */
+	private void addCircleBarRenderer() {
+		Paint paint = new Paint();
+		paint.setStrokeWidth(8f);
+		paint.setAntiAlias(true);
+		paint.setXfermode(new PorterDuffXfermode(Mode.LIGHTEN));
+		paint.setColor(Color.argb(255, 222, 92, 143));
+		CircleBarRenderer circleBarRenderer = new CircleBarRenderer(paint, 32, true);
+		visualizerView.addRenderer(circleBarRenderer);
+	}
+	
+	/**
+	 * 
+	 * @author frankfang
+	 * @version 2015年4月21日 下午6:03:24
+	 * @Description 清除渲染器
+	 */
+	private void clearRenderer() {
+		visualizerView.clearRenderers();
+	}
+	
+	/**
+	 * 
+	 * @author frankfang
+	 * @version 2015年4月20日 下午6:02:17
+	 * @Description 按下返回键
+	 */
+	@Override
+	public void onBackPressed() {
+		//返回不退出
+		moveTaskToBack(true);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		cleanUp();
+		super.onDestroy();
+	}
+	
+	
+	
+	/**
+	 * 
+	 * @author frankfang
+	 * @version 2015年4月21日 下午5:56:19
+	 * @Description 释放资源
+	 */
+	private void cleanUp() {
+		if(player != null) {
+			visualizerView.release();
+			player.mediaPlayer.release();
+			player.mediaPlayer = null;
+			player = null;
+		}
 	}
 	
 	
@@ -163,19 +234,5 @@ public class HZMusicActivity extends ActionBarActivity {
 	      e.printStackTrace();
 	    }
 	}
-	
-	
-	/**
-	 * 
-	 * @author frankfang
-	 * @version 2015年4月20日 下午6:02:17
-	 * @Description 按下返回键
-	 */
-	@Override
-	public void onBackPressed() {
-		
-		super.onBackPressed();
-	}
-	
 
 }
