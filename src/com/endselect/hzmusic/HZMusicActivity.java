@@ -3,6 +3,7 @@ package com.endselect.hzmusic;
 import java.io.IOException;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,18 +12,16 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.endselect.hzmusic.R;
 import com.endselect.hzmusic.common.Constant;
 import com.endselect.hzmusic.common.Player;
 import com.endselect.hzmusic.model.SongInfo;
@@ -30,6 +29,8 @@ import com.endselect.hzmusic.render.CircleBarRenderer;
 import com.endselect.hzmusic.server.Server;
 import com.endselect.hzmusic.view.CircleImageView;
 import com.endselect.hzmusic.view.RoundProgressView;
+import com.endselect.hzmusic.view.SlidingUpPanelLayout;
+import com.endselect.hzmusic.view.SlidingUpPanelLayout.PanelSlideListener;
 import com.endselect.hzmusic.view.VisualizerView;
 import com.squareup.picasso.Picasso;
 
@@ -39,16 +40,33 @@ import com.squareup.picasso.Picasso;
  * @version 2015年4月21日 下午4:00:43
  * @Description 主Activity
  */
-public class HZMusicActivity extends ActionBarActivity {
+public class HZMusicActivity extends Activity {
 
 	private Context context;
 	private CircleImageView coverView; //圆形封面视图
 	private RoundProgressView progressView; //圆形进度
 	private VisualizerView visualizerView; //音频可视化
+	private SlidingUpPanelLayout slidingPanel; //滑动面板
+	private LinearLayout btnBarLayout; //音频控制按钮布局块
+	private FrameLayout musicViewLayout;
 	private ImageView pauseView; //暂停
 	private TextView tvSongName; //歌曲名
 	private TextView tvSinger; //歌手名
 	private Player player; //播放器
+	
+	/*面板滑动时需要计算的偏移*/
+	private float coverXSlop;
+	private float coverXDelta;
+	private float coverYSlop;
+	private float coverYDelta;
+	private float coverScaleSlop;
+	private float coverScaleDelta;
+	private float btnBarXSlop;
+	private float btnBarXDelta;
+	private float btnBarYSlop;
+	private float btnBarYDelta;
+	private float btnBarScaleSlop;
+	private float btnBarScaleDelta;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +89,9 @@ public class HZMusicActivity extends ActionBarActivity {
 		coverView = (CircleImageView) findViewById(R.id.civ_music_cover);
 		progressView = (RoundProgressView) findViewById(R.id.rgp_music_progress);
 		visualizerView = (VisualizerView) findViewById(R.id.visual_view);
+		slidingPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_panel_layout);
+		musicViewLayout = (FrameLayout) findViewById(R.id.fl_music_view);
+		btnBarLayout = (LinearLayout) findViewById(R.id.ll_btn_bar);
 		pauseView =(ImageView) findViewById(R.id.iv_music_pause);
 		tvSongName = (TextView) findViewById(R.id.tv_song_name);
 		tvSinger = (TextView) findViewById(R.id.tv_singer);
@@ -101,6 +122,7 @@ public class HZMusicActivity extends ActionBarActivity {
 				}
 			}
 		});
+		
 		pauseView.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -110,6 +132,39 @@ public class HZMusicActivity extends ActionBarActivity {
 					player.pause();
 					pauseView.setVisibility(View.GONE);
 				}
+			}
+		});
+		
+		//监听滑动面板
+		slidingPanel.setPanelSlideListener(new PanelSlideListener() {
+			
+			@Override
+			public void onPanelSlide(View panel, float slideOffset) {
+				updatePositionOnSlide(slideOffset);
+			}
+			
+			@Override
+			public void onPanelHidden(View panel) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPanelExpanded(View panel) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPanelCollapsed(View panel) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onPanelAnchored(View panel) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 		
@@ -140,14 +195,35 @@ public class HZMusicActivity extends ActionBarActivity {
 				tvSongName.setVisibility(View.VISIBLE);
 				tvSinger.setText(songInfo.getArtist());
 				tvSinger.setVisibility(View.VISIBLE);
+				Picasso.with(context).load(songInfo.getPicture()).into(coverView);
 				player = new Player(musicUrl, progressView);
 				player.play();
-				Picasso.with(context).load(songInfo.getPicture()).into(coverView);
 				visualizerView.link(player.mediaPlayer);
 				addCircleBarRenderer();
 			}
 		}
 		
+	}
+	
+	/**
+	 * 
+	 * @author frankfang
+	 * @version 2015年4月22日 下午5:44:03
+	 * @Description 滑动面板时更新位置
+	 * @param slideOffset
+	 */
+	private void updatePositionOnSlide(float slideOffset) {
+		musicViewLayout.setTranslationX(slideOffset * coverXSlop + coverXDelta);
+		musicViewLayout.setTranslationY(slideOffset * coverYSlop + coverYDelta);
+		float scaleF1 = slideOffset * coverScaleSlop + coverScaleDelta;
+		musicViewLayout.setScaleX(scaleF1);
+		musicViewLayout.setScaleY(scaleF1);
+		
+		btnBarLayout.setTranslationX(slideOffset * btnBarXSlop + btnBarXDelta);
+		btnBarLayout.setTranslationY(slideOffset * btnBarYSlop + btnBarYDelta);
+		float scaleF2 = slideOffset * btnBarScaleSlop + btnBarScaleDelta;
+		btnBarLayout.setScaleX(scaleF2);
+		btnBarLayout.setScaleY(scaleF2);
 	}
 	
 	/**

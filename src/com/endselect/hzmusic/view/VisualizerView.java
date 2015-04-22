@@ -1,30 +1,27 @@
-/**
- * 
- */
 package com.endselect.hzmusic.view;
 
 import java.util.HashSet;
 import java.util.Set;
-import com.endselect.hzmusic.render.FFTData;
-import com.endselect.hzmusic.render.Renderer;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Bitmap.Config;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 import android.media.audiofx.Visualizer.OnDataCaptureListener;
-import android.provider.MediaStore.Audio;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
+
+import com.endselect.hzmusic.render.FFTData;
+import com.endselect.hzmusic.render.Renderer;
 
 /**
  * @author frankfang
